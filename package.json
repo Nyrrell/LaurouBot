@@ -2,14 +2,18 @@
   "name": "nrl-webhook-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/app.js",
   "type": "module",
+  "engines": {
+    "node": "^18"
+  },
   "scripts": {
     "dev": "node --watch src/app.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "start": "node ."
   },
   "keywords": [],
-  "author": "",
+  "author": "Nyrrell",
   "license": "ISC",
   "dependencies": {
     "fastify": "^4.12.0",

@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "command",
+      "name": "dev",
+      "program": "yarn",
+      "args": ["dev"]
+    },
+    {
+      "type": "command",
+      "name": "format",
+      "program": "yarn",
+      "args": ["format"]
+    },
+    {
+      "type": "command",
+      "name": "ngrok",
+      "program": "ngrok",
+      "args": ["http", "8030"]
+    }
+  ]
+}
