@@ -28,7 +28,7 @@ creator.on("commandError", (command, error) =>
 
 await creator
   .withServer(new FastifyServer())
-  .registerCommandsIn(join(DIRNAME, "commands"))
+  .registerCommandsIn(join(DIRNAME(), "commands"))
   .syncCommands()
   .startServer();
 
