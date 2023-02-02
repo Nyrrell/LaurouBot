@@ -10,11 +10,13 @@ node_modules/
 # Optional npm cache directory
 .npm
 
-#
-
+# Other
 .git
 .gitignore
 .dockerignore
 Dockerfile
 docker-compose.yml
+.prettierrc
+.env.example
+.fleet/
 share/
