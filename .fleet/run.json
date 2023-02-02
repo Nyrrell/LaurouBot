@@ -8,6 +8,12 @@
     },
     {
       "type": "command",
+      "name": "start",
+      "program": "yarn",
+      "args": ["start"]
+    },
+    {
+      "type": "command",
       "name": "format",
       "program": "yarn",
       "args": ["format"]
