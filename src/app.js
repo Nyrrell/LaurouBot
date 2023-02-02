@@ -9,6 +9,7 @@ const creator = new SlashCreator({
   publicKey: process.env.DISCORD_PUBLIC_KEY,
   token: process.env.DISCORD_BOT_TOKEN,
   client: process.env.DISCORD_GUILD,
+  serverHost: "0.0.0.0",
 });
 
 creator.on("debug", (message) => console.log("[DEBUG]", message));
@@ -29,4 +30,4 @@ creator.on("componentInteraction", (ctx) => {
 await creator.withServer(new FastifyServer()).registerCommands(commands).startServer();
 await creator.syncCommandsIn(process.env.DISCORD_GUILD);
 
-console.log(`Starting server at "localhost:${creator.options.serverPort}/interactions"`);
+console.log(`Starting server at "${creator.options.serverHost}:${creator.options.serverPort}/interactions"`);
