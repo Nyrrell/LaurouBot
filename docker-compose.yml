@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  app:
+    container_name: laurou-feed-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./share:/usr/app/share
+    restart: unless-stopped
