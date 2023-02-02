@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   app:
-    container_name: laurou-feed-app
+    container_name: nrl-webhook-app
     build:
       context: .
       dockerfile: Dockerfile
