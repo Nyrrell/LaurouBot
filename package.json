@@ -8,7 +8,8 @@
     "node": "^18"
   },
   "scripts": {
-    "dev": "node --watch src/app.js",
+    "dev": "NODE_DEBUG=dev node .",
+    "dev:watch": "NODE_DEBUG=dev node --watch src/app.js",
     "format": "prettier --write .",
     "start": "node ."
   },
