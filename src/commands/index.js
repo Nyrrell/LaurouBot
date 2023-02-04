@@ -10,7 +10,7 @@ const commands = [];
 for (const file of commandsFiles) {
   if (file === "index.js") continue;
 
-  const { Command } = await import(join(commandsDir, file));
+  const { default: Command } = await import(join(commandsDir, file));
   commands.push(Command);
 }
 

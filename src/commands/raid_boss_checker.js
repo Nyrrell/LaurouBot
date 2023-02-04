@@ -3,7 +3,7 @@ import { ButtonStyle, CommandOptionType, ComponentType, SlashCommand } from "sla
 import { choices, raid_component } from "../components/raid_boss.js";
 import { findComponent } from "../utils.js";
 
-class Raid_boss_checker extends SlashCommand {
+export default class Raid_boss_checker extends SlashCommand {
   constructor(creator) {
     super(creator, {
       name: "raid",
@@ -46,23 +46,21 @@ class Raid_boss_checker extends SlashCommand {
       })),
     });
   }
-}
 
-const raid_boss_interaction = async (ctx) => {
-  if (!ctx.member.permissions.has("MANAGE_GUILD"))
-    return await ctx.send({
-      content: "Tu n'as pas les droits nécessaires.",
-      ephemeral: true,
+  async interaction(ctx) {
+    if (!ctx.member.permissions.has("MANAGE_GUILD"))
+      return await ctx.send({
+        content: "Tu n'as pas les droits nécessaires.",
+        ephemeral: true,
+      });
+
+    const { components } = ctx.message;
+
+    const component = findComponent(components, ctx.customID);
+    component.style = component.style === ButtonStyle.DESTRUCTIVE ? ButtonStyle.SUCCESS : ButtonStyle.DESTRUCTIVE;
+
+    await ctx.editParent({
+      components: components,
     });
-
-  const { components } = ctx.message;
-
-  const component = findComponent(components, ctx.customID);
-  component.style = component.style === ButtonStyle.DESTRUCTIVE ? ButtonStyle.SUCCESS : ButtonStyle.DESTRUCTIVE;
-
-  await ctx.editParent({
-    components: components,
-  });
-};
-
-export { Raid_boss_checker as Command, raid_boss_interaction };
+  }
+}
