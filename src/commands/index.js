@@ -1,4 +1,17 @@
-import { Raid_boss_checker } from "./raid_boss_checker.js";
-import { HelloCommand } from "./hello.js";
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
 
-export const commands = [HelloCommand, Raid_boss_checker];
+import { DIRNAME } from "../utils.js";
+
+const commandsDir = DIRNAME(import.meta.url);
+const commandsFiles = await readdir(commandsDir);
+const commands = [];
+
+for (const file of commandsFiles) {
+  if (file === "index.js") continue;
+
+  const { Command } = await import(join(commandsDir, file));
+  commands.push(Command);
+}
+
+export { commands };

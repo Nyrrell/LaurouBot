@@ -3,7 +3,7 @@ import { ButtonStyle, CommandOptionType, ComponentType, SlashCommand } from "sla
 import { choices, raid_component } from "../components/raid_boss.js";
 import { findComponent } from "../utils.js";
 
-export class Raid_boss_checker extends SlashCommand {
+class Raid_boss_checker extends SlashCommand {
   constructor(creator) {
     super(creator, {
       name: "raid",
@@ -48,7 +48,7 @@ export class Raid_boss_checker extends SlashCommand {
   }
 }
 
-export const raid_boss_interaction = async (ctx) => {
+const raid_boss_interaction = async (ctx) => {
   if (!ctx.member.permissions.has("MANAGE_GUILD"))
     return await ctx.send({
       content: "Tu n'as pas les droits nécessaires.",
@@ -64,3 +64,5 @@ export const raid_boss_interaction = async (ctx) => {
     components: components,
   });
 };
+
+export { Raid_boss_checker as Command, raid_boss_interaction };
