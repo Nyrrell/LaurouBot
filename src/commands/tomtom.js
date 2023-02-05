@@ -52,6 +52,6 @@ export default class Tomtom extends SlashCommand {
   }
 
   async run(ctx) {
-			return commandHint.join(" ").trimStart() + "```ansi\n" + table(zone, config) + "```";
+    return commandHint.join(" ") + "```ansi\n" + table(zone, config) + "```";
   }
 }
