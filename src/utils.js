@@ -1,3 +1,4 @@
+import { getBorderCharacters, table } from "table";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
@@ -37,3 +38,5 @@ export const ansiColor = (string, color, format = 0) => {
 
   return `\u001b[${format};${colours[color]}m${string}\u001b[0m`;
 };
+
+export const Table = (content, config) => table(content, { border: getBorderCharacters("norc"), ...config });

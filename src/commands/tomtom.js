@@ -1,7 +1,6 @@
 import { SlashCommand, CommandOptionType } from "slash-create";
-import { getBorderCharacters, table } from "table";
 
-import { ansiColor } from "../utils.js";
+import { ansiColor, Table } from "../utils.js";
 
 const commandHint = [
   "```ansi\n" + ansiColor("/way", "white", 0),
@@ -21,8 +20,7 @@ const zone = [
   ["Valdrakken", `#2112`],
 ];
 
-const config = {
-  border: getBorderCharacters("norc"),
+const tableConfig = {
   columns: [{ paddingRight: 3 }, { alignment: "center" }],
 };
 
@@ -52,6 +50,6 @@ export default class Tomtom extends SlashCommand {
   }
 
   async run(ctx) {
-    return commandHint.join(" ") + "```ansi\n" + table(zone, config) + "```";
+    return commandHint.join(" ") + "```ansi\n" + Table(zone, tableConfig) + "```";
   }
 }
