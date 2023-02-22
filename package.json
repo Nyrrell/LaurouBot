@@ -11,7 +11,8 @@
     "dev": "NODE_DEBUG=dev node .",
     "dev:watch": "NODE_DEBUG=dev node --watch src/app.js",
     "format": "prettier --write .",
-    "start": "node ."
+    "start": "node .",
+    "db:up": "knex --knexfile ./src/database/knexfile.js migrate:latest"
   },
   "keywords": [],
   "author": "Nyrrell",
@@ -21,7 +22,7 @@
     "dotenv": "^16.0.3",
     "fastify": "^4.12.0",
     "got": "^12.5.3",
-    "sequelize": "^6.28.0",
+    "knex": "^2.4.2",
     "slash-create": "^5.11.0",
     "sqlite3": "^5.1.4",
     "table": "^6.8.1"
