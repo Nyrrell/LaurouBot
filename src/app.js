@@ -16,4 +16,6 @@ EventListener(creator);
 await creator.withServer(new FastifyServer()).registerCommands(commands).startServer();
 await creator.syncCommandsIn(process.env.DISCORD_GUILD);
 
-console.log(`Starting server at "${creator.options.serverHost}:${creator.options.serverPort}/interactions"`);
+console.log(
+  `Starting server at "${creator.options.serverHost}:${creator.options.serverPort}${creator.options.endpointPath}"`
+);

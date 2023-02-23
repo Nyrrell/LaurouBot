@@ -29,51 +29,61 @@ export default class Youtube extends SlashCommand {
   }
   async run(ctx) {
     const { mode } = ctx.options;
-
-    if (mode === "list") {
-      const channels = await getAllChannels();
-
-      if (Array.isArray(channels) && !Boolean(channels.length))
-        return ctx.send("Aucune chaine youtube suivi", { ephemeral: true });
-
-      return ctx.send({
-        embeds: [embedListChannel(channels)],
-        ephemeral: true,
-      });
+    
+    switch (mode) {
+      case "list":
+        return this.List(ctx);
+      case "add":
+        return this.Add(ctx);
+      case "update":
+        return this.List(ctx);
+      case "remove":
+        return this.List(ctx);
+      default:
+        return "Erreur dans la selection du mode";
     }
+  }
 
-    if (mode === "add") {
-      await ctx.sendModal(
-        {
-          title: "Ajouter une chaine youtube à suivre",
-          custom_id: "add_yt_channel",
-          components: [textInputUsername],
-        },
-        async (mctx) => {
-          const { values, customID } = mctx;
-          await mctx.defer(true);
+  async List(ctx) {
+    const channels = await getAllChannels();
 
-          const channel = await getChannelDetails(values.username.toLowerCase()).catch(() => false);
-          if (!channel) return mctx.send("⛔ Pas de chaine trouver");
+    if (Array.isArray(channels) && !Boolean(channels.length))
+      return ctx.send("Aucune chaine youtube suivi", { ephemeral: true });
 
-          const isInDatabase = await getChannelByChannelId(channel["id"]);
-          if (Array.isArray(isInDatabase) && Boolean(isInDatabase.length))
-            return mctx.send("⛔ Cette chaine est deja suivie !");
+    return ctx.send({
+      embeds: [embedListChannel(channels)],
+      ephemeral: true,
+    });
+  }
 
-          await mctx.send({
-            content: "Pour cette chaine Youtube ?",
-            embeds: [embedChannel(channel)],
-            components: [continueButton(customID)],
-          });
+  async Add(ctx) {
+    await ctx.sendModal(
+      {
+        title: "Ajouter une chaine youtube à suivre",
+        custom_id: "add_yt_channel",
+        components: [textInputUsername],
+      },
+      async (mctx) => {
+        const { values, customID } = mctx;
+        await mctx.defer(true);
 
-          const { id: messageId } = await mctx.fetch();
-          this.collection.set(messageId, { username: values.username, youtubeChannel: channel });
-        }
-      );
-      return;
-    }
+        const channel = await getChannelDetails(values.username.toLowerCase()).catch(() => false);
+        if (!channel) return mctx.send("⛔ Pas de chaine trouver");
 
-    return "another choice";
+        const isInDatabase = await getChannelByChannelId(channel["id"]);
+        if (Array.isArray(isInDatabase) && Boolean(isInDatabase.length))
+          return mctx.send("⛔ Cette chaine est deja suivie !");
+
+        await mctx.send({
+          content: "Pour cette chaine Youtube ?",
+          embeds: [embedChannel(channel)],
+          components: [continueButton(customID)],
+        });
+
+        const { id: messageId } = await mctx.fetch();
+        this.collection.set(messageId, { username: values.username, youtubeChannel: channel });
+      }
+    );
   }
 
   async interaction(ctx) {
