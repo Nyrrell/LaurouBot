@@ -9,10 +9,10 @@ import {
   embedSummary,
   embedNotification,
   embedChannel,
+  embedListChannel,
 } from "../components/youtube_components.js";
 import { addChannel, getAllChannels, getChannelByChannelId } from "../controllers/Youtube_Controller.js";
 import { getChannelDetails } from "../modules/youtube_api.js";
-import { ansiColor, Table } from "../utils.js";
 
 export default class Youtube extends SlashCommand {
   collection = new Collection();
@@ -32,10 +32,12 @@ export default class Youtube extends SlashCommand {
 
     if (mode === "list") {
       const channels = await getAllChannels();
-      if (!Array.isArray(channels)) return ctx.send("Aucune chaine youtube suivi", { ephemeral: true });
 
-      channels.unshift([ansiColor("Utilisateur", "blue", 1), ansiColor("Identifiant chaine", "yellow", 1)]);
-      return ctx.send("**Liste des chaines youtube suivies :**\n" + "```ansi\n" + Table(channels) + "```", {
+      if (Array.isArray(channels) && !Boolean(channels.length))
+        return ctx.send("Aucune chaine youtube suivi", { ephemeral: true });
+
+      return ctx.send({
+        embeds: [embedListChannel(channels)],
         ephemeral: true,
       });
     }
@@ -121,6 +123,7 @@ export default class Youtube extends SlashCommand {
         embeds: [],
         components: [selectRole],
       });
+
       return ctx.registerComponentFrom(messageID, "role", async (sctx) => {
         collector["role"] = sctx.values[0];
         collector["register"] = true;
@@ -137,7 +140,7 @@ export default class Youtube extends SlashCommand {
     if (Object.hasOwn(collector, "register")) {
       await ctx.acknowledge();
       const trx = await addChannel(collector);
-      console.log(trx);
+
       const feedback =
         trx["sql"] === "COMMIT" ? "✅ Enregistrement réussi !" : "❌ Une erreur est survenue enregistrement échoué !";
       return ctx.editParent({ content: feedback, embeds: [], components: [] });

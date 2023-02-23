@@ -2,10 +2,10 @@ export async function up(knex) {
   await knex.schema.createTable("Youtube_Channel", (table) => {
     table.increments("id").primary();
     table.string("username");
+    table.string("title");
     table.string("channelId").notNullable().unique();
     table.string("customUrl");
     table.string("uploadPlaylist");
-    table.boolean("active").defaultTo(true);
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
@@ -26,6 +26,8 @@ export async function up(knex) {
     table.string("channelId").primary();
     table.text("message");
     table.string("role");
+    table.string("discordChannel");
+    table.boolean("active").defaultTo(true);
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.timestamp("updated_at").defaultTo(knex.fn.now());
     table.foreign("channelId").references("channelId").inTable("Youtube_Channel");

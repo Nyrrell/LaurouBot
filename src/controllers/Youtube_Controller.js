@@ -1,10 +1,7 @@
 import { database } from "../database/database.js";
 
 export const getAllChannels = async () => {
-  const channels = await database.from("Youtube_Channel").select("username", "channelId");
-
-  if (channels.length === 0) return null;
-  return channels.map((channel) => [channel.username, channel.channelId]);
+  return database.from("Youtube_Channel").select();
 };
 
 export const getChannelByChannelId = async (channelId) => {
@@ -18,6 +15,7 @@ export const addChannel = async (collection) => {
     .insert({
       username: collection["username"],
       channelId: collection["youtubeChannel"]["id"],
+      title: collection["youtubeChannel"]["snippet"]["title"],
       customUrl: collection["youtubeChannel"]["snippet"]?.["customUrl"],
       uploadPlaylist: collection["youtubeChannel"]["contentDetails"]["relatedPlaylists"]["uploads"],
     })
@@ -29,5 +27,5 @@ export const addChannel = async (collection) => {
       });
     })
     .then(trx.commit)
-    .catch((err) => trx.rollback(err));
+    .catch(trx.rollback);
 };

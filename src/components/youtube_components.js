@@ -69,6 +69,21 @@ export const continueButton = (customID, label = "Continuer") => ({
   ],
 });
 
+export const embedListChannel = (channels) => ({
+  title: "🎬   Liste des chaines youtube suivies",
+  color: parseInt("27ae60", 16),
+  description:
+    "‎\n" +
+    channels
+      .map(
+        (channel) =>
+          `**• ${channel.title}**\n` +
+          `> https://youtube.com/${channel.customUrl ? channel.customUrl : `/channel/${channel.channelId}`}\n` +
+          `> Mis à jour ‧ \`${new Date(channel["updated_at"]).toLocaleString("fr-FR", { dateStyle: "short" })}\`\n\n`
+      )
+      .join(""),
+});
+
 export const embedChannel = (channel) => ({
   title: channel["snippet"]["title"],
   description: channel["snippet"]["description"],
