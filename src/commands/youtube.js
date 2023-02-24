@@ -74,8 +74,81 @@ export default class Youtube extends SlashCommand {
 
         const { id: messageId } = await mctx.fetch();
         this.collection.set(messageId, { username: values.username, youtubeChannel: channel });
+        await ctx.registerWildcardComponent(messageId, addInteraction);
       }
     );
+
+    const addInteraction = async (ctx) => {
+      const [customID, interaction] = ctx.customID.split(":");
+      const messageID = ctx.message.id;
+
+      if (interaction === "stop") {
+        this.collection.delete(messageID);
+        return ctx.editParent({ content: "", embeds: [component.AbortCmdEmbed()], components: [] });
+      }
+
+      const collector = this.collection.get(messageID);
+      if (!collector)
+        return ctx.editParent({
+          content: "",
+          embeds: [component.ErrorCmdEmbed("Un probleme est survenu, annulation !")],
+          components: [],
+        });
+
+      if (!Object.hasOwn(collector, "notification")) {
+        await ctx.sendModal(
+          {
+            title: "Ajouter un message de notification",
+            custom_id: "notification",
+            components: [component.paragraphInput({})],
+          },
+          async (mctx) => {
+            collector["notification"] = mctx.values.notification;
+            this.collection.set(messageID, collector);
+
+            await mctx.editParent({
+              content: "",
+              embeds: [component.embedNotification(collector["notification"])],
+            });
+          }
+        );
+        return;
+      }
+
+      if (!Object.hasOwn(collector, "role")) {
+        await ctx.editParent({
+          content: "Quel est le rôle à notifier ?",
+          embeds: [],
+          components: [component.selectRole()],
+        });
+
+        return ctx.registerComponentFrom(messageID, "role", async (sctx) => {
+          collector["role"] = sctx.values[0];
+          collector["register"] = true;
+          this.collection.set(messageID, collector);
+
+          return sctx.editParent({
+            content: "",
+            embeds: [component.embedSummary(collector)],
+            components: [component.continueButton({ customId: customID, label: "Enregistrer" })],
+          });
+        });
+      }
+
+      if (Object.hasOwn(collector, "register")) {
+        await ctx.acknowledge();
+        const trx = await addChannel(collector);
+        this.collection.delete(messageID);
+
+        const feedback =
+          trx["sql"] === "ROLLBACK"
+            ? component.ErrorCmdEmbed("Enregistrement de la chaine échoué !")
+            : component.SuccessCmdEmbed("Enregistrement de la chaine réussi");
+        return ctx.editParent({ embeds: [feedback], components: [] });
+      }
+
+      await ctx.editParent({ content: "Je... qu'est ce que quoi ?", embeds: [], components: [] });
+    };
   }
 
   async Update(ctx) {
@@ -155,80 +228,7 @@ export default class Youtube extends SlashCommand {
         content: "Tu n'as pas les droits nécessaires.",
         ephemeral: true,
       });
-    const [interactionType] = ctx.customID.split(":");
-    if (interactionType === "add_yt_channel") return this.addInteraction(ctx);
-  }
-
-  async addInteraction(ctx) {
-    const [customID, interaction] = ctx.customID.split(":");
-    const messageID = ctx.message.id;
-
-    if (interaction === "stop") {
-      this.collection.delete(messageID);
-      return ctx.editParent({ content: "", embeds: [component.AbortCmdEmbed()], components: [] });
-    }
-
-    const collector = this.collection.get(messageID);
-    if (!collector)
-      return ctx.editParent({
-        content: "",
-        embeds: [component.ErrorCmdEmbed("Un probleme est survenu, annulation !")],
-        components: [],
-      });
-
-    if (!Object.hasOwn(collector, "notification")) {
-      await ctx.sendModal(
-        {
-          title: "Ajouter un message de notification",
-          custom_id: "notification",
-          components: [component.paragraphInput({})],
-        },
-        async (mctx) => {
-          collector["notification"] = mctx.values.notification;
-          this.collection.set(messageID, collector);
-
-          await mctx.editParent({
-            content: "",
-            embeds: [component.embedNotification(collector["notification"])],
-          });
-        }
-      );
-      return;
-    }
-
-    if (!Object.hasOwn(collector, "role")) {
-      await ctx.editParent({
-        content: "Quel est le rôle à notifier ?",
-        embeds: [],
-        components: [component.selectRole()],
-      });
-
-      return ctx.registerComponentFrom(messageID, "role", async (sctx) => {
-        collector["role"] = sctx.values[0];
-        collector["register"] = true;
-        this.collection.set(messageID, collector);
-
-        return sctx.editParent({
-          content: "",
-          embeds: [component.embedSummary(collector)],
-          components: [component.continueButton({ customId: customID, label: "Enregistrer" })],
-        });
-      });
-    }
-
-    if (Object.hasOwn(collector, "register")) {
-      await ctx.acknowledge();
-      const trx = await addChannel(collector);
-      this.collection.delete(messageID);
-
-      const feedback =
-        trx["sql"] === "ROLLBACK"
-          ? component.ErrorCmdEmbed("Enregistrement de la chaine échoué !")
-          : component.SuccessCmdEmbed("Enregistrement de la chaine réussi");
-      return ctx.editParent({ embeds: [feedback], components: [] });
-    }
-
-    await ctx.editParent({ content: "Je... qu'est ce que quoi ?", embeds: [], components: [] });
+    //    const [interactionType] = ctx.customID.split(":");
   }
 
   onError(err, ctx) {
