@@ -4,8 +4,8 @@ export const getAllChannels = async () => {
   return database.from("Youtube_Channel").select();
 };
 
-export const getChannelByChannelId = async (channelId) => {
-  return database.from("Youtube_Channel").select().where({ channelId: channelId });
+export const getChannelByChannelId = (channelId) => {
+  return database.from("Youtube_Channel").select().where({ channelId: channelId }).first();
 };
 
 export const addChannel = async (collection) => {
@@ -28,4 +28,8 @@ export const addChannel = async (collection) => {
     })
     .then(trx.commit)
     .catch(trx.rollback);
+};
+
+export const removeChannel = (channel) => {
+  return database.from("Youtube_Channel").where("id", channel.id).delete();
 };

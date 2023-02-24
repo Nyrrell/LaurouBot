@@ -6,8 +6,7 @@ export async function up(knex) {
     table.string("channelId").notNullable().unique();
     table.string("customUrl");
     table.string("uploadPlaylist");
-    table.timestamp("created_at").defaultTo(knex.fn.now());
-    table.timestamp("updated_at").defaultTo(knex.fn.now());
+    table.timestamps(true, true, true);
   });
 
   await knex.schema.createTable("Youtube_Video", (table) => {
@@ -17,9 +16,9 @@ export async function up(knex) {
     table.text("description").notNullable();
     table.string("thumbnail").notNullable();
     table.string("channelId").notNullable();
-    table.timestamp("created_at").defaultTo(knex.fn.now());
-    table.timestamp("updated_at").defaultTo(knex.fn.now());
-    table.foreign("channelId").references("channelId").inTable("Youtube_Channel");
+    table.timestamps(true, true, true);
+
+    table.foreign("channelId").references("channelId").inTable("Youtube_Channel").onDelete("CASCADE");
   });
 
   await knex.schema.createTable("Youtube_Notification", (table) => {
@@ -28,9 +27,9 @@ export async function up(knex) {
     table.string("role");
     table.string("discordChannel");
     table.boolean("active").defaultTo(true);
-    table.timestamp("created_at").defaultTo(knex.fn.now());
-    table.timestamp("updated_at").defaultTo(knex.fn.now());
-    table.foreign("channelId").references("channelId").inTable("Youtube_Channel");
+    table.timestamps(true, true, true);
+
+    table.foreign("channelId").references("channelId").inTable("Youtube_Channel").onDelete("CASCADE");
   });
 }
 
