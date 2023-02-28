@@ -1,7 +1,13 @@
 import { SlashCommand, Collection } from "slash-create";
 
 import { Youtube_Components } from "../components/Youtube_Components.js";
-import { addChannel, getAllChannels, getChannelByChannelId, removeChannel } from "../controllers/Youtube_Controller.js";
+import {
+  addChannel,
+  getAllChannels,
+  getChannelByChannelId,
+  populateYoutubeVideos,
+  removeChannel,
+} from "../controllers/Youtube_Controller.js";
 import { getChannelDetails } from "../modules/youtube_api.js";
 
 const component = new Youtube_Components();
@@ -84,14 +90,14 @@ export default class Youtube extends SlashCommand {
 
       if (interaction === "stop") {
         this.collection.delete(messageID);
-        return ctx.editParent({ content: "", embeds: [component.AbortCmdEmbed()], components: [] });
+        return ctx.editParent({ content: "", embeds: [component.AbortFeedback()], components: [] });
       }
 
       const collector = this.collection.get(messageID);
       if (!collector)
         return ctx.editParent({
           content: "",
-          embeds: [component.ErrorCmdEmbed("Un probleme est survenu, annulation !")],
+          embeds: [component.ErrorFeedback("Un probleme est survenu, annulation !")],
           components: [],
         });
 
@@ -138,16 +144,23 @@ export default class Youtube extends SlashCommand {
       if (Object.hasOwn(collector, "register")) {
         await ctx.acknowledge();
         const trx = await addChannel(collector);
+        const successTrx = Boolean(trx["sql"] !== "ROLLBACK");
         this.collection.delete(messageID);
 
-        const feedback =
-          trx["sql"] === "ROLLBACK"
-            ? component.ErrorCmdEmbed("Enregistrement de la chaine échoué !")
-            : component.SuccessCmdEmbed("Enregistrement de la chaine réussi");
-        return ctx.editParent({ embeds: [feedback], components: [] });
-      }
+        const feedback = successTrx
+          ? component.SuccessFeedback("Enregistrement de la chaine réussi")
+          : component.ErrorFeedback("Enregistrement de la chaine échoué !");
+        await ctx.editParent({ embeds: [feedback], components: [] });
 
-      await ctx.editParent({ content: "Je... qu'est ce que quoi ?", embeds: [], components: [] });
+        if (successTrx) {
+          const trxPopulate = await populateYoutubeVideos(collector["youtubeChannel"]["id"]);
+          const feedback =
+            trxPopulate["sql"] !== "ROLLBACK"
+              ? component.SuccessFeedback("Chargement des videos réussi, les notifications vont commencer !")
+              : component.ErrorFeedback("Chargement des videos échoué !");
+          await ctx.sendFollowUp({ embeds: [feedback], components: [] });
+        }
+      }
     };
   }
 
@@ -200,13 +213,13 @@ export default class Youtube extends SlashCommand {
         if (trx > 0)
           return sctx.editParent({
             content: "",
-            embeds: [component.SuccessCmdEmbed(`La chaine **${channel.title}** a bien été supprimée !`)],
+            embeds: [component.SuccessFeedback(`La chaine **${channel.title}** a bien été supprimée !`)],
             components: [],
           });
 
         return sctx.editParent({
           content: "",
-          embeds: [component.ErrorCmdEmbed(`Suppression de la chaine **${channel.title}** échoué !`)],
+          embeds: [component.ErrorFeedback(`Suppression de la chaine **${channel.title}** échoué !`)],
           components: [],
         });
       }
@@ -215,7 +228,7 @@ export default class Youtube extends SlashCommand {
         this.collection.delete(messageId);
         return sctx.editParent({
           content: "",
-          embeds: [component.AbortCmdEmbed(`Suppression de la chaine **${channel.title}** annuler !`)],
+          embeds: [component.AbortFeedback(`Suppression de la chaine **${channel.title}** annuler !`)],
           components: [],
         });
       }
