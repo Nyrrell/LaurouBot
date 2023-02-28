@@ -1,11 +1,9 @@
 version: "3.9"
 services:
   app:
-    container_name: nrl-webhook-app
+    container_name: laurouBot-app
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8030:8030"
     volumes:
-      - ./share:/usr/app/share
+      - ./shared:/usr/app/shared
