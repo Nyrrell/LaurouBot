@@ -1,60 +1,39 @@
-import { readFile } from "node:fs/promises";
 import { got } from "got";
-import "dotenv/config";
+import { getVideosUploadPlaylist } from "../modules/youtube_api.js";
+import { addVideo, getAllChannels, getAllVideosByChannelId } from "../controllers/Youtube_Controller.js";
 
-import { sequelize } from "../database.js";
-const { Youtube } = sequelize.models;
+const { YOUTUBE_WEBHOOK_URL: webhook } = process.env;
 
-const { YOUTUBE_API_KEY, YOUTUBE_WEBHOOK_URL } = process.env;
-const { youtubeChannel } = await readFile("./share/youtube.json", "utf8")
-  .then((json) => JSON.parse(json))
-  .catch(({ message }) => console.error(message));
+const fetchVideo = async (channel) => {
+  const storedVideos = await getAllVideosByChannelId(channel["channelId"]);
+  if (!storedVideos.length) return;
 
-const client = got.extend({
-  prefixUrl: "https://www.googleapis.com/youtube/v3/",
-  searchParams: {
-    key: YOUTUBE_API_KEY,
-    part: "contentDetails,snippet",
-    order: "date",
-  },
-});
+  const uploadVideos = await getVideosUploadPlaylist(channel["uploadPlaylist"]);
+  if (!uploadVideos.length) return;
 
-const fetchVideo = async (uploadsPlaylistId, storedVideos) => {
-  try {
-    const { items: videos } = await client
-      .get(`playlistItems`, { searchParams: { playlistId: uploadsPlaylistId } })
-      .json();
+  for await (const video of uploadVideos) {
+    const videoId = video["contentDetails"]["videoId"];
 
-    if (!videos.length) return;
+    if (storedVideos?.find(({ id }) => id === videoId)) continue;
 
-    for await (const video of videos) {
-      const videoId = video["contentDetails"]["videoId"];
+    await got(webhook, {
+      method: "POST",
+      json: {
+        content: channel["message"]
+          .replaceAll("{lien}", `https://youtu.be/${videoId}`)
+          .replaceAll("{role}", `<@&${channel["role"]}>`),
+      },
+    });
 
-      if (storedVideos?.find(({ id }) => id === videoId)) continue;
-
-      await got(YOUTUBE_WEBHOOK_URL, {
-        method: "POST",
-        json: { content: `https://youtu.be/${videoId}` },
-      });
-
-      await Youtube.create({
-        id: videoId,
-        channel: video["snippet"]["channelTitle"],
-        title: video["snippet"]["title"],
-        descr: video["snippet"]["description"],
-        thumb: video["snippet"]["thumbnails"]["high"]["url"],
-        channelId: video["snippet"]["channelId"],
-        createdAt: video["snippet"]["publishedAt"],
-      });
-    }
-  } catch (e) {
-    console.log(e);
+    await addVideo(video);
   }
 };
 
 export const youtubeFeed = async () => {
-  const storedVideos = await Youtube.findAll();
-  for (const { uploadsPlaylistId } of youtubeChannel) {
-    await fetchVideo(uploadsPlaylistId, storedVideos);
+  const youtubeChannels = await getAllChannels();
+  if (!youtubeChannels.length) return;
+
+  for (const channel of youtubeChannels) {
+    await fetchVideo(channel);
   }
 };
