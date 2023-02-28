@@ -65,19 +65,19 @@ export class Base_Components {
     ],
   });
 
-  SuccessCmdEmbed = (message) => ({
+  SuccessFeedback = (message) => ({
     title: "✅  Opération réussie !",
     description: message,
     color: this.color.green,
   });
 
-  AbortCmdEmbed = (message) => ({
+  AbortFeedback = (message) => ({
     title: "❌  Annulation de l'opération !",
     description: message,
     color: this.color.red,
   });
 
-  ErrorCmdEmbed = (message) => ({
+  ErrorFeedback = (message) => ({
     title: "⚠️  Une erreur s'est produite",
     description: message,
     color: this.color.yellow,

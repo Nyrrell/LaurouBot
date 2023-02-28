@@ -1,7 +1,9 @@
-import { ButtonStyle, CommandOptionType, ComponentType, SlashCommand } from "slash-create";
+import { ButtonStyle, SlashCommand } from "slash-create";
 
-import { choices, raid_component } from "../components/raid_boss.js";
+import { Raid_Boss_Components } from "../components/Raid_Boss_Components.js";
 import { findComponent } from "../utils.js";
+
+const component = new Raid_Boss_Components();
 
 export default class Raid_boss_checker extends SlashCommand {
   constructor(creator) {
@@ -11,39 +13,17 @@ export default class Raid_boss_checker extends SlashCommand {
       guildIDs: creator.client,
       defaultPermission: false,
       requiredPermissions: ["MANAGE_GUILD"],
-      options: [
-        {
-          type: CommandOptionType.STRING,
-          name: "mode",
-          description: "En quelle difficulté ?",
-          required: true,
-          choices,
-        },
-      ],
+      options: [component.commandsOptions],
     });
   }
 
   async run(ctx) {
     await ctx.defer();
-    const mode = choices.find((mode) => mode.value === ctx.options.mode);
+    const mode = component.commandsOptions.choices.find((mode) => mode.value === ctx.options.mode);
 
     await ctx.send({
-      embeds: [
-        {
-          title: `**Caveau des incarnations**`,
-          description: `Suivi des boss en difficulté **${mode.name}**`,
-          color: parseInt(mode.color, 16),
-        },
-      ],
-      components: raid_component.map((gate) => ({
-        type: ComponentType.ACTION_ROW,
-        components: gate.map((boss) => ({
-          type: ComponentType.BUTTON,
-          style: ButtonStyle.DESTRUCTIVE,
-          label: boss.label,
-          custom_id: boss.custom_id,
-        })),
-      })),
+      embeds: [component.embedInteraction(mode)],
+      components: component.componentInteraction(),
     });
   }
 
