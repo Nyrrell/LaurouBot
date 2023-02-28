@@ -5,7 +5,7 @@ export default class HelloCommand extends SlashCommand {
     super(creator, {
       name: "hello",
       description: "Dire bonjour à l'utilisateur",
-      guildIDs: creator.client,
+      guildIDs: creator.guildId,
       defaultPermission: false,
       requiredPermissions: ["MANAGE_GUILD"],
     });

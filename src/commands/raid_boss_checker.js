@@ -10,7 +10,7 @@ export default class Raid_boss_checker extends SlashCommand {
     super(creator, {
       name: "raid",
       description: "Initialisation du suivi de boss",
-      guildIDs: creator.client,
+      guildIDs: creator.guildId,
       defaultPermission: false,
       requiredPermissions: ["MANAGE_GUILD"],
       options: [component.commandsOptions],

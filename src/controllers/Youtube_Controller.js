@@ -32,6 +32,7 @@ export const addChannel = async (collection) => {
         channelId: collection["youtubeChannel"]["id"],
         message: collection["notification"],
         role: collection["role"],
+        discordChannel: collection["discordChannel"],
       });
     })
     .then(trx.commit)

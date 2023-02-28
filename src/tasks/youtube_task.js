@@ -1,8 +1,6 @@
-import { got } from "got";
-import { getVideosUploadPlaylist } from "../modules/youtube_api.js";
 import { addVideo, getAllChannels, getAllVideosByChannelId } from "../controllers/Youtube_Controller.js";
-
-const { YOUTUBE_WEBHOOK_URL: webhook } = process.env;
+import { getVideosUploadPlaylist } from "../modules/youtube_api.js";
+import { client } from "../app.js";
 
 const fetchVideo = async (channel) => {
   const storedVideos = await getAllVideosByChannelId(channel["channelId"]);
@@ -16,13 +14,10 @@ const fetchVideo = async (channel) => {
 
     if (storedVideos?.find(({ id }) => id === videoId)) continue;
 
-    await got(webhook, {
-      method: "POST",
-      json: {
-        content: channel["message"]
-          .replaceAll("{lien}", `https://youtu.be/${videoId}`)
-          .replaceAll("{role}", `<@&${channel["role"]}>`),
-      },
+    await client.createMessage(channel["discordChannel"], {
+      content: channel["message"]
+        .replaceAll("{lien}", `https://youtu.be/${videoId}`)
+        .replaceAll("{role}", `<@&${channel["role"]}>`),
     });
 
     await addVideo(video);

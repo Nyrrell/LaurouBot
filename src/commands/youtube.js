@@ -19,7 +19,7 @@ export default class Youtube extends SlashCommand {
     super(creator, {
       name: "youtube",
       description: "Configuration des chaines Youtube à suivre",
-      guildIDs: creator.client,
+      guildIDs: creator.guildId,
       defaultPermission: false,
       requiredPermissions: ["MANAGE_GUILD"],
       options: [component.commandsOptions],
@@ -130,6 +130,25 @@ export default class Youtube extends SlashCommand {
 
         return ctx.registerComponentFrom(messageID, "role", async (sctx) => {
           collector["role"] = sctx.values[0];
+          this.collection.set(messageID, collector);
+
+          return sctx.editParent({
+            content: "",
+            embeds: [component.embedSummary(collector)],
+            components: [component.continueButton({ customId: customID, label: "Enregistrer" })],
+          });
+        });
+      }
+
+      if (!Object.hasOwn(collector, "discordChannel")) {
+        await ctx.editParent({
+          content: "Dans quel channel envoyer la notification ?",
+          embeds: [],
+          components: [component.selectChannel()],
+        });
+
+        return ctx.registerComponentFrom(messageID, "channel", async (sctx) => {
+          collector["discordChannel"] = sctx.values[0];
           collector["register"] = true;
           this.collection.set(messageID, collector);
 

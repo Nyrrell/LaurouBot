@@ -13,7 +13,7 @@ export class Youtube_Components extends Base_Components {
       { name: "Ajouter", value: "add" },
       { name: "Modifier", value: "update" },
       { name: "Supprimer", value: "remove" },
-      ],
+    ],
   };
 
   selectYoutubeChannel = (channels, customId) => ({
@@ -28,7 +28,7 @@ export class Youtube_Components extends Base_Components {
           value: channel.channelId,
         })),
       },
-      ],
+    ],
   });
 
   embedListChannel = (channels) => ({
@@ -38,11 +38,11 @@ export class Youtube_Components extends Base_Components {
       "‎\n" +
       channels
         .map(
-                (channel) =>
+          (channel) =>
             `**• ${channel.title}**\n` +
             `> https://youtube.com/${channel.customUrl ? channel.customUrl : `/channel/${channel.channelId}`}\n` +
             `> Mis à jour ‧ \`${new Date(channel["updatedAt"]).toLocaleString("fr-FR", { dateStyle: "short" })}\`\n\n`
-            )
+        )
         .join(""),
   });
 
@@ -69,7 +69,7 @@ export class Youtube_Components extends Base_Components {
           "Ajouter la balise {lien} pour définir l'emplacement du lien de la vidéo\n" +
           "Example : Bonjour {role} voici le lien d'une video à regarder : {lien}",
       },
-      ],
+    ],
   });
 
   embedNotification = (message) => ({
@@ -90,6 +90,14 @@ export class Youtube_Components extends Base_Components {
         name: "Message de notification :",
         value: collector["notification"].replaceAll("{role}", `<@&${collector["role"]}>`),
       },
-      ],
+      ...(collector["discordChannel"]
+        ? [
+            {
+              name: "Channel discord :",
+              value: `<#${collector["discordChannel"]}>`,
+            },
+          ]
+        : []),
+    ],
   });
 }

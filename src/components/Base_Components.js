@@ -42,6 +42,7 @@ export class Base_Components {
     components: [
       {
         type: ComponentType.CHANNEL_SELECT,
+        placeholder: "Choisis un channel",
         custom_id: customId,
       },
     ],

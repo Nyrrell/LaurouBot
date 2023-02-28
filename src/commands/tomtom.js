@@ -29,7 +29,7 @@ export default class Tomtom extends SlashCommand {
     super(creator, {
       name: "tomtom",
       description: "Affiche les identifiants des zones pour tomtom",
-      guildIDs: creator.client,
+      guildIDs: creator.guildId,
       defaultPermission: false,
       requiredPermissions: ["MANAGE_GUILD"],
       options: [

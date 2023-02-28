@@ -19,8 +19,19 @@ export const EventListener = (creator) => {
   creator.on("debug", (message) => debug("[DEBUG]", message));
   creator.on("commandRun", (command, _, ctx) =>
     debug(
-      "[COMMAND_RUN]",
+      "[DEBUG:COMMAND_RUN]",
       `${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command /${command.commandName}`
     )
   );
+};
+
+export const clientEventLiestener = (client, handler) => {
+  client.on("ready", async () => {
+    console.log(`Logged on guild "${client.guilds.map((guild) => guild.name).join(", ")}" as ${client.user.username}`);
+    import("./tasks/index.js");
+  });
+
+  client.on("rawWS", (event) => {
+    if (event.t === "INTERACTION_CREATE") handler(event.d);
+  });
 };

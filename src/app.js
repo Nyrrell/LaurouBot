@@ -1,21 +1,25 @@
-import { SlashCreator, FastifyServer } from "slash-create";
+import { SlashCreator, GatewayServer } from "slash-create";
+import Eris from "eris";
 import "dotenv/config";
 
 import { commands } from "./commands/index.js";
-import { EventListener } from "./events.js";
+import { clientEventLiestener, EventListener } from "./events.js";
+
+export const client = new Eris(process.env.DISCORD_BOT_TOKEN);
 
 export const creator = await new SlashCreator({
   applicationID: process.env.DISCORD_APP_ID,
   publicKey: process.env.DISCORD_PUBLIC_KEY,
   token: process.env.DISCORD_BOT_TOKEN,
-  client: process.env.DISCORD_GUILD,
-  serverHost: "0.0.0.0",
+  client,
 });
 
+creator.guildId = process.env.DISCORD_GUILD;
+
 EventListener(creator);
-await creator.withServer(new FastifyServer()).registerCommands(commands).startServer();
+await creator
+  .withServer(new GatewayServer((handler) => clientEventLiestener(client, handler)))
+  .registerCommands(commands);
 await creator.syncCommandsIn(process.env.DISCORD_GUILD);
 
-console.log(
-  `Starting server at "${creator.options.serverHost}:${creator.options.serverPort}${creator.options.endpointPath}"`
-);
+await client.connect();
